@@ -5,12 +5,18 @@
  */
 package lendle.courses.network.loginws;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import static java.util.Collections.list;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -35,8 +41,22 @@ public class LoginsServlet extends HttpServlet {
     
     
     private void service1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-        response.setContentType("text/plain;charset=UTF-8");
+        response.setContentType("application/jsoni");
         try (PrintWriter out=response.getWriter(); Connection conn=DriverManager.getConnection("jdbc:derby://localhost:1527/sample", "app", "app")) {
+            Statement stmt=conn.createStatement();
+            ResultSet rs=stmt.executeQuery("select * from login");
+            List list=new Vector();
+            while(rs.next()){
+                String id=rs.getString("ID");
+                String pass=rs.getString("PASSWORD");
+                Map map=new HashMap();
+                map.put("id", id);
+                map.put("password", pass);
+                list.add(map);
+            }
+            Gson gson=new Gson();
+            String json=gson.toJson(list);
+            out.print(json);
             //select from login
             //output in id:password style
             
